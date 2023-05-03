@@ -1,14 +1,14 @@
-### Install
+### Install langchain and OpenAI
 
 ```
-!python --version
-!pip install langchain --upgrade
+# !python --version
+# !pip install langchain --upgrade
 # !conda install langchain -c conda-forge --y
 # Version: 0.0.149
 ```
 
 ```
-!pip install openai --upgrade
+# !pip install openai --upgrade
 # !conda install openai -c conda-forge --y
 ```
 
@@ -49,6 +49,8 @@ print (f'You have {len(data)} document(s) in your data')
 print (f'There are {len(data[0].page_content)} characters in your document')
 ```
 
+### Splitting documents into chunks
+
 ```
 text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=0)
 texts = text_splitter.split_documents(data)
@@ -57,6 +59,8 @@ texts = text_splitter.split_documents(data)
 ```
 print (f'Now you have {len(texts)} documents')
 ```
+
+### Initialize Pinecone
 
 ```
 # !pip install pinecone-client
@@ -79,13 +83,14 @@ embeddings = OpenAIEmbeddings(
 ```
 
 ```
-# initialize pinecone
 pinecone.init(
     api_key=PINECONE_API_KEY,  # find at app.pinecone.io
     environment=PINECONE_API_ENV  # next to api key in console
 )
 index_name = "langchaindemo" # put in the name of your pinecone index here
 ```
+
+### Storing documents and embeddings in a vectorstore
 
 ```
 # !pip install tiktoken
@@ -94,6 +99,8 @@ index_name = "langchaindemo" # put in the name of your pinecone index here
 ```
 docsearch = Pinecone.from_texts([t.page_content for t in texts], embeddings, index_name=index_name)
 ```
+
+### Do a search on Pinecone
 
 ```
 query = "what is included in my health benefit"
@@ -105,27 +112,34 @@ docs = docsearch.similarity_search(query, include_metadata=True)
 docs[0].page_content[:250]
 ```
 
-### Query those docs to get your answer back
+### Use Azure OpenAI
 
 ```
-from langchain.llms import OpenAI
+from langchain.llms import AzureOpenAI
+# from langchain.llms import OpenAI
 from langchain.chains.question_answering import load_qa_chain
 ```
 
 ```
-llm = OpenAI(
-    temperature=0,
-    openai_api_key=OPENAI_API_KEY,
-    openai_api_base=OPENAI_API_BASE,
-    model_name = "text-davinci-003",
-    deployment_id = "davinci",
-    max_tokens=100
+llm = AzureOpenAI(
+    deployment_name="davinci",
+    model_name="text-davinci-003",
+    openai_api_key=OPENAI_API_KEY
 )
-chain = load_qa_chain(llm, chain_type="stuff")
+
+# llm = OpenAI(
+#    temperature=0,
+#    openai_api_key=OPENAI_API_KEY,
+#    openai_api_base=OPENAI_API_BASE,
+#    model_name = "text-davinci-003",
+#    deployment_id = "davinci",
+#    max_tokens=100
+#)
 ```
 
 ```
-docs = docsearch.similarity_search(query, include_metadata=True)
+# Remember you did a test search before?
+# docs = docsearch.similarity_search(query, include_metadata=True)
 ```
 
 ```
@@ -133,6 +147,9 @@ docs = docsearch.similarity_search(query, include_metadata=True)
 # print(llm(query))
 ```
 
+### Chain them
+
 ```
+chain = load_qa_chain(llm, chain_type="stuff")
 chain.run(input_documents=docs, question=query)
 ```
