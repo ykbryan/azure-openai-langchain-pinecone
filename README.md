@@ -21,7 +21,6 @@ OPENAI_API_TYPE = 'azure'
 OPENAI_API_VERSION = '2022-12-01' # 2023-03-15-preview
 PINECONE_API_KEY = ''
 PINECONE_API_ENV = ''
-CHAT_MODEL = ''
 ```
 
 ### Load your data
@@ -33,7 +32,7 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 
 ```
 # loader = UnstructuredPDFLoader("../data/some.pdf")
-loader = OnlinePDFLoader("https://wolfpaulus.com/wp-content/uploads/2017/05/field-guide-to-data-science.pdf")
+loader = OnlinePDFLoader("https://github.com/Azure-Samples/azure-search-openai-demo/raw/main/data/Northwind_Standard_Benefits_Details.pdf")
 ```
 
 ```
@@ -97,7 +96,7 @@ docsearch = Pinecone.from_texts([t.page_content for t in texts], embeddings, ind
 ```
 
 ```
-query = "What are examples of good data science teams?"
+query = "what is included in my health benefit"
 docs = docsearch.similarity_search(query, include_metadata=True)
 ```
 
@@ -126,13 +125,12 @@ chain = load_qa_chain(llm, chain_type="stuff")
 ```
 
 ```
-query = "What is the collect stage of data maturity?"
 docs = docsearch.similarity_search(query, include_metadata=True)
 ```
 
 ```
 # Run the LLM
-llm("Tell me a joke")
+# print(llm(query))
 ```
 
 ```
